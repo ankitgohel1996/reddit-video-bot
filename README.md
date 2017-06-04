@@ -14,7 +14,5 @@ Title |	Coldplay - Trouble (piano) NEW IMPROVED VERSION
 Description	| Want to learn how to play some of my covers ? Here is the quickest and easiest way : http://tinyurl.com/od7ewno Coldplay - Trouble (piano cover) Parachutes NEW IMPROVED VERSION
 Length | 0:04:28
 
-****
- 
-^(I am a bot, this is an auto-generated reply | )^[Info](https://www.reddit.com/u/video_descriptionbot) ^| ^[Feedback](https://www.reddit.com/message/compose/?to=video_descriptionbot&subject=Feedback) ^| ^(Reply STOP to opt out permanently)
+I am a bot, this is an auto-generated reply | | [Info](https://www.reddit.com/u/video_descriptionbot) | [Feedback](https://www.reddit.com/message/compose/?to=video_descriptionbot&subject=Feedback) | Reply STOP to opt out permanently
 
