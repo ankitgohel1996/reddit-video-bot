@@ -12,7 +12,7 @@ youtube = youtubeobject.get_authenticated_service(args)
 
 def main():
 	reddit = reddit_auth()
-	subreddit = reddit.subreddit('test')
+	subreddit = reddit.subreddit('all')
 	for comment in subreddit.stream.comments():
 		process_comments(comment)	
 
@@ -42,7 +42,7 @@ def process_comments(comment):
 	if comment.score < 1:
 		return
 
-	if 'youtube.com' in comment.body or 'youtu.be' in comment.body:
+	if 'youtube.com/watch' in comment.body or 'youtu.be' in comment.body:
 		with connection.cursor() as cursor:
 			cursor.execute('SELECT * FROM  blacklist WHERE author = "%s"' % (comment.author))
 			result_blacklist = cursor.rowcount
@@ -62,13 +62,18 @@ def process_comments(comment):
 		reply_post = ""
 
 		for word in words:
-			if 'youtube.com' in word or 'youtu.be' in word:
+			if 'youtube.com/watch' in word or 'youtu.be' in word:
 				if '](' in word:
 					comment_parts = word.split(']')
 					youtube_link = comment_parts[1].split(')')[0][1:]
-					reply_post += create_reply(youtube_link)
+					if create_reply(youtube_link) != False:
+						reply_post += create_reply(youtube_link)
 				else:
-					reply_post += create_reply(word)
+					if create_reply(word) != False:
+						reply_post += create_reply(word)
+
+		if reply_post == "":
+			return
 
 		reply_post += '\n \n \n \n'+ '****' + '\n \n' + '^(I am a bot, this is an auto-generated reply | )'
 		reply_post += '^[Info](https://www.reddit.com/u/video_descriptionbot) ^| '
@@ -86,13 +91,25 @@ def process_comments(comment):
 
 def create_reply(body):
 	reply = 'SECTION | CONTENT' +'\n' + ':--|:--' +'\n'
-	reply_title,reply_description,reply_duration = find_id(body)
-	reply += 'Title | '+ reply_title +'\n'
-	reply += 'Description | '+ reply_description +'\n'
-	reply += 'Length | '+ str(reply_duration) +'\n'
-	reply += '\n \n'
 
-	return reply
+	try:
+		if find_id(body) != False:
+			reply_title,reply_description,reply_duration = find_id(body)
+			reply += 'Title | '+ reply_title +'\n'
+
+			if len(reply_description) > 1:
+				reply += 'Description | '+ reply_description +'\n'
+
+			reply += 'Length | '+ str(reply_duration) +'\n'
+			reply += '\n \n'
+
+			return reply
+		else:
+			return False
+
+	except TypeError as e:
+		print(e)
+		return False
 
 def find_id(link):
 	if 'v=' in link:
@@ -105,14 +122,19 @@ def find_id(link):
 		else:
 			video_id = link_parts[1]
 
-	results = youtubeobject.list_videos(youtube,video_id)
+	try:
+		results = youtubeobject.list_videos(youtube,video_id)
 
-	for item in results['items']:
-		description = item['snippet']['description'].replace('\n',' ')
-		title = item['snippet']['title']
-		length = isodate.parse_duration(item['contentDetails']['duration'])
+		for item in results['items']:
+			description = item['snippet']['description'].replace('\n',' ')
+			title = item['snippet']['title']
+			length = isodate.parse_duration(item['contentDetails']['duration'])
 
-	return title, description, length
+		return title, description, length
+
+	except (UnboundLocalError,TypeError) as e:
+		print(e)
+		return False
 
 if __name__ == '__main__':
 	main()
