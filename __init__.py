@@ -86,6 +86,7 @@ def process_comments(comment):
 			with connection.cursor() as cursor:
 				cursor.execute('INSERT INTO comments VALUES("%s")' % (comment.id))
 				connection.commit()
+				
 		except Exception as e:
 			print (e)
 
