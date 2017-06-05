@@ -2,6 +2,7 @@ import praw,pprint
 from oauth2client.tools import argparser, run_flow
 from db import get_db
 from youtube import YouTubeInfo
+from praw_auth import reddit_auth
 import isodate
 
 connection = get_db()
@@ -10,13 +11,8 @@ args = argparser.parse_args()
 youtube = youtubeobject.get_authenticated_service(args)
 
 def main():
-	reddit = praw.Reddit(client_id='AVvBGy0ZFlVgMw',
-	                     client_secret='R9SaacImMQOiXLawVtKs5hZSqcQ',
-	                     password='katebeckett   ',
-	                     user_agent='python : youtubebot : v1.0.0 (by /u/video_descriptionbot)',
-	                     username='video_descriptionbot')
-	
-	subreddit = reddit.subreddit('test')
+	reddit = reddit_auth()
+	subreddit = reddit.subreddit('all')
 	for comment in subreddit.stream.comments():
 		process_comments(comment)	
 
@@ -34,7 +30,7 @@ def blacklist_users(comment):
 			connection.commit()
 
 def process_comments(comment):
-	print(comment.body)
+	print(comment)
 	blacklist_users(comment)
 
 	if comment.author == 'video_descriptionbot':
