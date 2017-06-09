@@ -26,8 +26,11 @@ def blacklist_users(comment):
 			return
 
 		with connection.cursor() as cursor:
-			cursor.execute('INSERT INTO blacklist VALUES("%s")' % (comment.author))
-			connection.commit()
+			try:
+				cursor.execute('INSERT INTO blacklist VALUES("%s")' % (comment.author))
+				connection.commit()
+			except pymysql.err.IntegrityError as e:
+				print(e)
 
 def process_comments(comment):
 	print(comment)
@@ -86,7 +89,7 @@ def process_comments(comment):
 			with connection.cursor() as cursor:
 				cursor.execute('INSERT INTO comments VALUES("%s")' % (comment.id))
 				connection.commit()
-				
+
 		except Exception as e:
 			print (e)
 
@@ -127,7 +130,13 @@ def find_id(link):
 		results = youtubeobject.list_videos(youtube,video_id)
 
 		for item in results['items']:
-			description = item['snippet']['description'].replace('\n',' ')
+
+			if len(item['snippet']['description']) > 500 :
+				description = item['snippet']['description'].replace('\n',' ')[:500]
+				description += '...'
+			else:
+				description = item['snippet']['description'].replace('\n',' ')
+
 			title = item['snippet']['title']
 			length = isodate.parse_duration(item['contentDetails']['duration'])
 
